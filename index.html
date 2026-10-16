@@ -1,0 +1,42 @@
+<!DOCTYPE html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1">
+<title>Equation Heist – Crack the Vault</title><link rel="stylesheet" href="quest.css">
+<style>body{background:linear-gradient(160deg,#0b0f1a,#1a2a3a);color:#eef}.card{background:#ffffff12;border:1px solid #ffffff2a}
+button{background:#3bb2ff;color:#fff}button.alt,.opt,.path{background:#ffffff1f;color:#eef}button.go{background:#2ee6a6;color:#032}
+.prog>div{background:linear-gradient(90deg,#ffd23f,#2ee6a6)}.steps{background:#0005;font-family:ui-monospace,monospace}.donep{opacity:.6}
+.sc li{margin:4px 0}</style></head><body><div class="wrap"><h1>🕶️ Equation Heist</h1><div id="ctl" class="card small"></div><div id="app"></div></div>
+<script src="tracker.js"></script><script src="quest-engine.js"></script><script>
+const MC=(o)=>Object.assign({type:'mc'},o),NUM=(o)=>Object.assign({type:'num'},o);
+QuestEngine.start({game:'equation-heist',defaultPlayer:'Sebastian',emoji:'🏦',unit:'locks',
+title:'Crack the Equation Vault',
+story:'The Vault of Variables is guarded by locks that only open for people who can turn real situations into equations. You are the crew\'s code-breaker. Learn the crew\'s secret method, pick which vault to hit first, and crack every lock.',
+strategy:`<p><b>R-D-T-S-C: the code-breaker's method</b></p><ol class="sc">
+<li><b>R</b>ead it twice. Circle the numbers and what they mean.</li>
+<li><b>D</b>efine the variable: “Let w = number of weeks.” Name what you DON'T know.</li>
+<li><b>T</b>ranslate each side as <b>start + change</b>: start amount + (rate × variable). Spending or losing = <b>minus</b> the rate.</li>
+<li><b>S</b>olve: distribute (watch negatives: −(a − b) = −a + b), get variables on one side, undo + and −, then × and ÷.</li>
+<li><b>C</b>heck: plug it back into the STORY. Does it make sense?</li></ol>
+<p><b>Special-case decoder:</b> after simplifying, x's cancel and it's false (5 = 2) → <b>no solution</b>; always true (4 = 4) → <b>infinitely many</b>; you get <b>x = 0</b> → that's ONE solution, and it's zero.</p>`,
+hubTitle:'🗺️ Pick your vault',hubHint:'Your call on the order. Crack Vaults 1 and 2 to escape; the Geometry Vault is optional bonus loot.',
+paths:[
+{id:'translate',emoji:'💰',name:'Vault 1: Story Locks',desc:'Turn real situations into equations and inequalities, then solve.',doneMsg:'Story Locks cracked!',items:[
+MC({id:'t1',skill:'define-variable',label:'Lock 1 · Define',q:'“A phone plan costs $30 a month plus $0.10 per text.” In the equation 30 + 0.10x = 42, what should x stand for?',opts:['The number of texts','The cost of one text','The total monthly bill','The $30 base fee'],a:0,h:'The variable is the thing you DON\'T know yet, and it gets multiplied by the rate.',s:'x = number of texts. The rate ($0.10 per text) multiplies the number of texts.'}),
+MC({id:'t2',skill:'translate-equation',label:'Lock 2 · Translate',q:'A gym charges a $25 sign-up fee plus $10 per month. Sebastian\'s total so far is $95. Which equation fits? (m = months)',opts:['25 + 10m = 95','10 + 25m = 95','25m + 10m = 95','95 + 10m = 25'],a:0,h:'Start + change: what you pay once (start) + rate × months.',s:'Start = $25, change = 10 per month → 25 + 10m = 95'}),
+NUM({id:'t3',skill:'two-step',label:'Lock 3 · Solve',q:'Solve 25 + 10m = 95. How many months?',a:'7',h:'Undo the +25 first, then divide by 10.',s:'10m = 70 → m = 7 months\nCheck: 25 + 70 = 95 ✓'}),
+MC({id:'t4',skill:'translate-start-rate-both-sides',label:'Lock 4 · Translate',q:'Team A has 20 points and gains 5 points per round. Team B has 62 points and loses 2 points per round. Which equation finds the round r when they\'re tied?',opts:['20 + 5r = 62 − 2r','20 − 5r = 62 + 2r','20 + 5r = 62 + 2r','5r + 2r = 20 + 62'],a:0,h:'Write start + change for EACH team. Losing points means minus.',s:'Team A: 20 + 5r. Team B: 62 − 2r. Tied → 20 + 5r = 62 − 2r'}),
+NUM({id:'t5',skill:'vars-both-sides',label:'Lock 5 · Solve',q:'Solve 20 + 5r = 62 − 2r. After how many rounds are they tied?',a:'6',h:'Add 2r to both sides so all the r\'s are together.',s:'20 + 7r = 62 (add 2r)\n7r = 42 → r = 6\nCheck: 20 + 30 = 50 and 62 − 12 = 50 ✓'}),
+MC({id:'t6',skill:'translate-start-rate-both-sides',label:'Lock 6 · Translate',q:'Tank A holds 300 liters and drains 15 liters per minute. Tank B holds 120 liters and fills 30 liters per minute. Which equation finds when they hold the same amount? (m = minutes)',opts:['300 − 15m = 120 + 30m','300 + 15m = 120 + 30m','300 − 15m = 120 − 30m','15m + 30m = 300'],a:0,h:'Draining = losing (minus). Filling = gaining (plus). Start + change on each side.',s:'A: 300 − 15m. B: 120 + 30m. Same → 300 − 15m = 120 + 30m'}),
+NUM({id:'t7',skill:'vars-both-sides',label:'Lock 7 · Solve',q:'Solve 300 − 15m = 120 + 30m. How many minutes?',a:'4',h:'Add 15m to both sides, then subtract 120.',s:'300 = 120 + 45m\n180 = 45m → m = 4\nCheck: 300 − 60 = 240 and 120 + 120 = 240 ✓'}),
+MC({id:'t8',skill:'translate-inequality',label:'Lock 8 · Translate',q:'You have at most $40 to spend at an arcade. Entry is $12 and each game token costs $4. Which inequality shows how many tokens t you can buy?',opts:['12 + 4t ≤ 40','12 + 4t ≥ 40','4 + 12t ≤ 40','12 + 4t < 4'],a:0,h:'“At most” means you can\'t go over: ≤.',s:'Start + change ≤ budget → 12 + 4t ≤ 40'}),
+NUM({id:'t9',skill:'solve-inequality',label:'Lock 9 · Solve',q:'Solve 12 + 4t ≤ 40. What is the MOST tokens you can buy?',a:'7',h:'Solve like an equation: subtract 12, divide by 4.',s:'4t ≤ 28 → t ≤ 7\nMost tokens: 7. Check: 12 + 28 = 40 ✓'})]},
+{id:'review',emoji:'🧨',name:'Vault 2: Trap Room',desc:'Disarm the traps: negatives and the x = 0 vs. no-solution trick.',doneMsg:'Traps disarmed!',items:[
+NUM({id:'v1',skill:'distribute-negative',label:'Trap 1',q:'Solve: −4(x − 3) = 2x + 30',a:'-3',h:'−4 times −3 is +12.',s:'−4x + 12 = 2x + 30 (distribute)\n−6x + 12 = 30 (subtract 2x)\n−6x = 18 → x = −3\nCheck: −4(−6) = 24 and 2(−3) + 30 = 24 ✓'}),
+NUM({id:'v2',skill:'distribute-negative',label:'Trap 2',q:'Solve: 5 − (2x − 7) = 12',a:'0',ph:'a number, no solution, or infinitely many',h:'The minus flips BOTH signs inside: −2x + 7.',s:'5 − 2x + 7 = 12\n12 − 2x = 12\n−2x = 0 → x = 0 (one solution, and it\'s zero!)'}),
+MC({id:'v3',skill:'x-zero-vs-no-solution',label:'Trap 3',q:'What happens with 7x + 2 = 3x + 2?',opts:['x = 0 (one solution)','No solution','Infinitely many solutions'],a:0,h:'The x-coefficients are different (7 and 3), so the x\'s won\'t cancel.',s:'4x + 2 = 2 → 4x = 0 → x = 0. One solution!'}),
+MC({id:'v4',skill:'x-zero-vs-no-solution',label:'Trap 4',q:'What happens with 2(x + 4) = 2x + 4?',opts:['x = 0 (one solution)','No solution','Infinitely many solutions'],a:1,h:'Distribute first. Do the x\'s cancel? Is what\'s left true?',s:'2x + 8 = 2x + 4 → 8 = 4, false → no solution'})]},
+{id:'geometry',emoji:'📐',name:'Bonus: Geometry Vault',optional:true,desc:'Unknown angles and composite figures (optional bonus loot).',doneMsg:'Bonus loot secured!',items:[
+NUM({id:'g1',skill:'angle-equation',label:'Bonus 1',q:'Two angles are supplementary (they add to 180°). One is (3x + 10)° and the other is (2x + 20)°. Find x.',a:'30',h:'Set the sum equal to 180.',s:'3x + 10 + 2x + 20 = 180\n5x + 30 = 180 → 5x = 150 → x = 30\n(Angles: 100° and 80° ✓)'}),
+NUM({id:'g2',skill:'angle-equation',label:'Bonus 2',q:'Vertical angles are equal. Two vertical angles measure (4x − 5)° and (2x + 25)°. Find x.',a:'15',h:'Set them equal, then get x on one side.',s:'4x − 5 = 2x + 25\n2x = 30 → x = 15 (both angles 55° ✓)'}),
+NUM({id:'g3',skill:'composite-area',label:'Bonus 3',q:'A vault floor is a 10 m × 6 m rectangle with a 4 m × 3 m rectangular corner cut out (an L-shape). What is its area in square meters?',a:'48',h:'Whole rectangle minus the missing piece.',s:'10 × 6 = 60\n4 × 3 = 12\n60 − 12 = 48 m²'})]}],
+reflectChips:['Defining the variable','Start + change','Checking in the story','Watching negatives','The special-case decoder'],
+reflectQ:'Which part of the code-breaker method helped you most today, and why?',winMsg:'You cracked the Equation Vault! 💰'});
+</script></body></html>
